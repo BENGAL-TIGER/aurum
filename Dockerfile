@@ -28,7 +28,7 @@ run apt-get update && apt-get install -y \
     swig
 
 
-# _____ lifted from rocker-org/rocker/r-base/Dockerfile
+# _____ lifted from rocker-org/rocker/r-base/Dockerfile ______________
 ENV R_BASE_VERSION 3.5.3
 
 ## Now install R and littler, and create a link for littler in /usr/local/bin
@@ -52,7 +52,7 @@ RUN apt-get update -y \
 
 
 
-# _____ miniconda _______________
+# _____ miniconda ___________________________________________
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh \
  && /bin/bash ~/miniconda.sh -b -p /opt/conda \
  && rm ~/miniconda.sh \
@@ -73,7 +73,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86
 #  run cmake --build .
 
 
-# _____ julia ___________________
+# _____ julia _______________________________________________
 ENV JULIA_VERSION=1.1.0
 
 RUN mkdir /opt/julia-${JULIA_VERSION} \
@@ -93,7 +93,7 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
 USER ${NB_USER}
 
 
-# _____ r packages ______________
+# _____ r packages __________________________________________
 run install2.r --error --deps TRUE \
     tidyverse \
     devtools \
@@ -116,7 +116,7 @@ run install2.r --error --deps TRUE \
      'pzhaonet/bookdownplus' \
      ))"
 
-# _____ julia packages __________
+# _____ julia packages ______________________________________
 RUN julia -e "import Pkg; Pkg.update()"  \
  # && julia -e 'import Pkg; Pkg.add("HDF5")')  \
 #  && julia -e 'import Pkg; Pkg.add("Gadfly")'  \
