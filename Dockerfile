@@ -1,6 +1,6 @@
 FROM rocker/binder:3.5.3
 
-ENV COOLPROP_BINARIES ${HOME}/.coolprop
+# ENV COOLPROP_BINARIES ${HOME}/.coolprop
 
 USER root
 
@@ -26,6 +26,29 @@ run apt-get update && apt-get install -y \
     p7zip \
     libpython-dev \
     swig
+
+
+# _____ lifted from rocker-org/rocker/r-base/Dockerfile
+ENV R_BASE_VERSION 3.5.3
+
+## Now install R and littler, and create a link for littler in /usr/local/bin
+RUN apt-get update -y \
+# && apt-get install -t unstable -y --no-install-recommends \
+&& apt-get install  -y --no-install-recommends \
+	littler \
+    r-cran-littler \
+	# r-base=${R_BASE_VERSION}-* \
+	# r-base-dev=${R_BASE_VERSION}-* \
+	# r-recommended=${R_BASE_VERSION}-* \
+ && ln -s /usr/lib/R/site-library/littler/examples/install.r /usr/local/bin/install.r \
+ # && ln -s /usr/lib/R/site-library/littler/examples/install2.r /usr/local/bin/install2.r \
+ # && ln -s /usr/lib/R/site-library/littler/examples/installGithub.r /usr/local/bin/installGithub.r \
+ && ln -s /usr/lib/R/site-library/littler/examples/testInstalled.r /usr/local/bin/testInstalled.r \
+ && install.r docopt \
+ && rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
+ && rm -rf /var/lib/apt/lists/*
+ # _____ end rocker/r-base/ _______________
+
 
 
 
@@ -69,6 +92,31 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
 ## Become normal user again
 USER ${NB_USER}
 
+
+# _____ r packages ______________
+run install2.r --error --deps TRUE \
+    tidyverse \
+    devtools \
+    formatR \
+    remotes \
+    caTools \
+    reticulate \
+    # RColorBrewer \
+    reticulate \
+    rmarkdown \
+    caTools \
+    bitops \
+    shiny \
+    ggthemes \
+    ggrepel \
+    tufte \
+#
+ && R -e "devtools::install_github(c( \
+     'rstudio/bookdown', \
+     'pzhaonet/bookdownplus' \
+     ))"
+
+# _____ julia packages __________
 RUN julia -e "import Pkg; Pkg.update()"  \
  # && julia -e 'import Pkg; Pkg.add("HDF5")')  \
 #  && julia -e 'import Pkg; Pkg.add("Gadfly")'  \
@@ -90,7 +138,8 @@ RUN julia -e "import Pkg; Pkg.update()"  \
 
 ## Run an install.R script, if it exists.
 # RUN if [ -f install.R ]; then R --quiet -f install.R; fi
-RUN if [ -f install.R ]; then R  -f install.R; fi
+# RUN if [ -f install.R ]; then R  -f install.R; fi
 
+env SHELL=/bin/bash
 
 workdir ${HOME}/work
