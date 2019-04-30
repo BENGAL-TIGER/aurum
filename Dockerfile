@@ -1,12 +1,13 @@
-FROM rocker/binder:3.5.3
 
-# ENV COOLPROP_BINARIES ${HOME}/.coolprop
+FROM rocker/binder:3.5.3
 
 USER root
 
 ## Copies your repo files into the Docker Container
 copy . ${HOME}
-RUN chown -R ${NB_USER} ${HOME}
+RUN cat splash && printf "Beginning installation...\n\n\n" \
+ && chown -R ${NB_USER} ${HOME} \
+ && mkdir ${HOME}/work
 
 # run mkdir ${COOLPROP_BINARIES}
 # run mkdir ${HOME}/work
@@ -25,16 +26,17 @@ run apt-get update && apt-get install -y \
     g++ \
     p7zip \
     libpython-dev \
-    swig
+    swig \
+ && cat splash \
+ && printf "Core routines installed...\n\n\n"
 
 
-# _____ lifted from rocker-org/rocker/r-base/Dockerfile ______________
+# _____ lifted from rocker-org/rocker/r-base/Dockerfile ____________________
 ENV R_BASE_VERSION 3.5.3
 
 ## Now install R and littler, and create a link for littler in /usr/local/bin
 RUN apt-get update -y \
-# && apt-get install -t unstable -y --no-install-recommends \
-&& apt-get install  -y --no-install-recommends \
+ && apt-get install  -y --no-install-recommends \
 	littler \
     r-cran-littler \
 	# r-base=${R_BASE_VERSION}-* \
@@ -46,20 +48,24 @@ RUN apt-get update -y \
  && ln -s /usr/lib/R/site-library/littler/examples/testInstalled.r /usr/local/bin/testInstalled.r \
  && install.r docopt \
  && rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
- && rm -rf /var/lib/apt/lists/*
- # _____ end rocker/r-base/ _______________
+ && rm -rf /var/lib/apt/lists/* \
+ && cat splash \
+ && printf "R installed...\n\n\n"
+# _____ end rocker/r-base/ _________________________________________________
 
 
 
 
-# _____ miniconda ___________________________________________
+# _____ miniconda __________________________________________________________
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh \
  && /bin/bash ~/miniconda.sh -b -p /opt/conda \
  && rm ~/miniconda.sh \
  && /opt/conda/bin/conda clean -tipsy \
  && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
- && echo "conda activate base" >> ~/.bashrc
+ && echo "conda activate base" >> ~/.bashrc \
+ && cat splash \
+ && printf "miniconda installed...\n\n\n"
 
 # run pip install six
 #
@@ -73,7 +79,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86
 #  run cmake --build .
 
 
-# _____ julia _______________________________________________
+# _____ julia ______________________________________________________________
 ENV JULIA_VERSION=1.1.0
 
 RUN mkdir /opt/julia-${JULIA_VERSION} \
@@ -82,7 +88,10 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
  && echo "80cfd013e526b5145ec3254920afd89bb459f1db7a2a3f21849125af20c05471 *julia-${JULIA_VERSION}-linux-x86_64.tar.gz" | sha256sum -c - \
  && tar xzf julia-${JULIA_VERSION}-linux-x86_64.tar.gz -C /opt/julia-${JULIA_VERSION} --strip-components=1 \
  && rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz \
- && ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
+ && ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia \
+ && cd ~ \
+ && cat splash \
+ && printf "Julia installed...\n\n\n"
 
 # smoke test
 # run	julia --version
@@ -93,7 +102,7 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
 USER ${NB_USER}
 
 
-# _____ r packages __________________________________________
+# _____ r packages _________________________________________________________
 run install2.r --error --deps TRUE \
     tidyverse \
     devtools \
@@ -114,11 +123,13 @@ run install2.r --error --deps TRUE \
  && R -e "devtools::install_github(c( \
      'rstudio/bookdown', \
      'pzhaonet/bookdownplus' \
-     ))"
+     ))" \
+ && cat splash \
+ && printf "R packages installed...\n\n\n"
 
-# _____ julia packages ______________________________________
+# _____ julia packages _____________________________________________________
 RUN julia -e "import Pkg; Pkg.update()"  \
- # && julia -e 'import Pkg; Pkg.add("HDF5")')  \
+#  && julia -e 'import Pkg; Pkg.add("HDF5")')  \
 #  && julia -e 'import Pkg; Pkg.add("Gadfly")'  \
 #  && julia -e 'import Pkg; Pkg.add("RDatasets")'  \
 #  && julia -e 'import Pkg; Pkg.add("ZMQ")'  \
@@ -133,13 +144,21 @@ RUN julia -e "import Pkg; Pkg.update()"  \
 # run julia -e 'import Pkg; Pkg.clone("https://github.com/OpenModelica/OMJulia.jl"); Pkg.resolve(); Pkg.update(); using OMJulia'  \
  && julia -e "import Pkg; Pkg.add(\"IJulia\") " \
  #  Precompile Julia packages \
- && julia -e "using IJulia"
+ && julia -e "using IJulia" \
+ && cat splash \
+ && printf "Julia packages installed... \n\n\n"
+
 
 
 ## Run an install.R script, if it exists.
 # RUN if [ -f install.R ]; then R --quiet -f install.R; fi
 # RUN if [ -f install.R ]; then R  -f install.R; fi
 
-env SHELL=/bin/bash
+# ENTRYPOINT ["/bin/bash", "-c", "cat splash"]
 
-workdir ${HOME}/work
+# CMD []
+
+env SHELL=/bin/bash \
+    HOME=${HOME}/work
+
+workdir ${HOME}
