@@ -158,7 +158,7 @@ RUN julia -e "import Pkg; Pkg.update()"  \
 
 # CMD []
 
-env SHELL=/bin/bash \
-    HOME=${HOME}/work
+env SHELL=/bin/bash
+    # HOME=${HOME}/work
 
-workdir ${HOME}
+workdir ${HOME}/work
