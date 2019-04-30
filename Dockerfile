@@ -4,7 +4,7 @@ FROM rocker/binder:3.5.3
 USER root
 
 ## Copies your repo files into the Docker Container
-copy . ${HOME}
+add . ${HOME}
 RUN cat splash && printf "Beginning installation...\n\n\n" \
  && chown -R ${NB_USER} ${HOME} \
  && mkdir ${HOME}/work
@@ -37,7 +37,7 @@ ENV R_BASE_VERSION 3.5.3
 ## Now install R and littler, and create a link for littler in /usr/local/bin
 RUN apt-get update -y \
  && apt-get install  -y --no-install-recommends \
-	littler \
+    littler \
     r-cran-littler \
 	# r-base=${R_BASE_VERSION}-* \
 	# r-base-dev=${R_BASE_VERSION}-* \
@@ -102,30 +102,30 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
 USER ${NB_USER}
 
 
-# _____ r packages _________________________________________________________
-run install2.r --error --deps TRUE \
-    tidyverse \
-    devtools \
-    formatR \
-    remotes \
-    caTools \
-    reticulate \
-    # RColorBrewer \
-    reticulate \
-    rmarkdown \
-    caTools \
-    bitops \
-    shiny \
-    ggthemes \
-    ggrepel \
-    tufte \
-#
- && R -e "devtools::install_github(c( \
-     'rstudio/bookdown', \
-     'pzhaonet/bookdownplus' \
-     ))" \
- && cat splash \
- && printf "R packages installed...\n\n\n"
+# # _____ r packages _________________________________________________________
+# run install2.r --error --deps TRUE \
+#     tidyverse \
+#     devtools \
+#     formatR \
+#     remotes \
+#     caTools \
+#     reticulate \
+#     # RColorBrewer \
+#     reticulate \
+#     rmarkdown \
+#     caTools \
+#     bitops \
+#     shiny \
+#     ggthemes \
+#     ggrepel \
+#     tufte \
+# #
+#  && R -e "devtools::install_github(c( \
+#      'rstudio/bookdown', \
+#      'pzhaonet/bookdownplus' \
+#      ))" \
+#  && cat splash \
+#  && printf "R packages installed...\n\n\n"
 
 # _____ julia packages _____________________________________________________
 RUN julia -e "import Pkg; Pkg.update()"  \
