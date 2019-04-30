@@ -6,8 +6,8 @@ USER root
 ## Copies your repo files into the Docker Container
 add . ${HOME}
 RUN cat splash && printf "Beginning installation...\n\n\n" \
- && chown -R ${NB_USER} ${HOME} \
- && mkdir ${HOME}/work
+ && chown -R ${NB_USER} ${HOME}
+ # && mkdir ${HOME}/work
 
 # run mkdir ${COOLPROP_BINARIES}
 # run mkdir ${HOME}/work
