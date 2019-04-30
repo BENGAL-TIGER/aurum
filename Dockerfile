@@ -91,12 +91,8 @@ RUN mkdir /opt/julia-${JULIA_VERSION} \
  && ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia \
  && cd ~ \
  && cat splash \
- && printf "Julia installed...\n\n\n"
+ && julia -e 'print("Julia v",VERSION," installed...\n\n\n")'
 
-# smoke test
-# run	julia --version
-
-# CMD ["julia"]
 
 ## Become normal user again
 USER ${NB_USER}
@@ -128,7 +124,8 @@ USER ${NB_USER}
 #  && printf "R packages installed...\n\n\n"
 
 # _____ julia packages _____________________________________________________
-RUN julia -e "import Pkg; Pkg.update()"  \
+# RUN julia -e 'import Pkg; Pkg.update()' \
+ # && julia -e 'using Pkg; pkg"add Gadfly RDatasets InstantiateFromURL"; pkg"precompile" ' && \
 #  && julia -e 'import Pkg; Pkg.add("HDF5")')  \
 #  && julia -e 'import Pkg; Pkg.add("Gadfly")'  \
 #  && julia -e 'import Pkg; Pkg.add("RDatasets")'  \
@@ -137,14 +134,21 @@ RUN julia -e "import Pkg; Pkg.update()"  \
 #  && julia -e 'import Pkg; Pkg.add("DataStructures")' \
 #  && julia -e 'import Pkg; Pkg.add("DataFrames")' \
 #  && julia -e 'import Pkg; Pkg.add("LightXML")' \
- && julia -e 'import Pkg; Pkg.add("Unitful")' \
+ # && julia -e 'import Pkg; Pkg.add("Unitful")' \
 #  && julia -e 'import Pkg; Pkg.add("CSV")' \
 #  && julia -e 'import Pkg; Pkg.add("Random")'
 #
 # run julia -e 'import Pkg; Pkg.clone("https://github.com/OpenModelica/OMJulia.jl"); Pkg.resolve(); Pkg.update(); using OMJulia'  \
- && julia -e "import Pkg; Pkg.add(\"IJulia\") " \
+ # && julia -e "import Pkg; Pkg.add(\"IJulia\") " \
  #  Precompile Julia packages \
- && julia -e "using IJulia" \
+ # && julia -e "using IJulia" \
+
+run julia -e 'using Pkg;
+              Pkg.add(["Gadfly",
+                       "RDatasets",
+                       "IJulia",
+                       "InstantiateFromURL"]);
+              pkg"precompile" ' \
  && cat splash \
  && printf "Julia packages installed... \n\n\n"
 
