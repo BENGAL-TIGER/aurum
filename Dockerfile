@@ -143,11 +143,10 @@ USER ${NB_USER}
  #  Precompile Julia packages \
  # && julia -e "using IJulia" \
 
-run julia -e 'using Pkg;
-              Pkg.add(["Gadfly",
-                       "RDatasets",
-                       "IJulia",
-                       "InstantiateFromURL"]);
+run julia -e 'using Pkg; \
+              pkg"add Unitful \
+                      IJulia \
+                      InstantiateFromURL"; \
               pkg"precompile" ' \
  && cat splash \
  && printf "Julia packages installed... \n\n\n"
