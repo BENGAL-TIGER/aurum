@@ -154,7 +154,7 @@ RUN julia -e "import Pkg; Pkg.update()"  \
 # RUN if [ -f install.R ]; then R --quiet -f install.R; fi
 # RUN if [ -f install.R ]; then R  -f install.R; fi
 
-# ENTRYPOINT ["/bin/bash", "-c", "cat splash"]
+# ENTRYPOINT ["/bin/bash", "-c", "cat splash; jupyter notebook"]
 
 # CMD []
 
